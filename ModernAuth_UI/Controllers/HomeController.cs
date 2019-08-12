@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -29,14 +30,22 @@ namespace ModernAuth_UI.Controllers
 
         public async Task<IActionResult> Index()
         {
-           
+            string accessToken = "";
             using (var httpClient = _httpClientFactory.CreateClient())
             {
                 var dictionary = _configuration.GetSection("AzureAd").GetChildren()
                                                                      .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
                                                                      .ToDictionary(x => x.Key, x => x.Value);
 
-                var accessToken = await _tokenHandler.GetAccessTokenSilently(dictionary);
+                try
+                {
+                    accessToken = await _tokenHandler.GetAccessTokenSilently(dictionary);
+                }
+                catch(Exception e)
+                {
+                    return RedirectToAction("SignIn", "Account");
+                }
+
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 var response = await httpClient.GetAsync(_configuration["apiURL"] + this.User.Identity.Name);
                 var responseContent = await response.Content.ReadAsStringAsync();
