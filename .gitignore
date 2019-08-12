@@ -12,8 +12,11 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
-#Ignore app settings files as well for now
+#Ignore app settings files
 *appsettings*
+
+#Don't ignore reference of app settings 
+!*appSettingsReference*
 
 # Build results
 [Dd]ebug/
