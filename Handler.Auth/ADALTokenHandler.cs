@@ -22,13 +22,13 @@ namespace Handler.Auth
             ClientCredential credential = new ClientCredential(allTokenNeededData["ClientId"], allTokenNeededData["ClientSecret"]);
             AuthenticationContext authContext = new AuthenticationContext($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}");
 
-
-            var tokens = await authContext.AcquireTokenByAuthorizationCodeAsync(
-                                                                            allTokenNeededData["Code"],
-                                                                            new Uri(allTokenNeededData["redirectURI"]),
-                                                                            credential,
-                                                                            allTokenNeededData["Resource"]
-                                                                         );
+            //only used to ensure access and refresh tokens are stored in cache         
+            await authContext.AcquireTokenByAuthorizationCodeAsync(
+                                                                    allTokenNeededData["Code"],
+                                                                    new Uri(allTokenNeededData["redirectURI"]),
+                                                                    credential,
+                                                                    allTokenNeededData["Resource"]
+                                                                    );
         }
 
         public async Task<string> GetAccessTokenOnBehalfOf(T allTokenNeededData)
