@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
 
-namespace Handler.AuthN
+namespace Handler.Auth
 {
     public interface ITokenHandler<in T>
     {
         Task StoreAccessToken(T allTokenNeededData);
-        Task<string> GetAccessToken(T allTokenNeededData);
+        Task<string> GetAccessTokenSilently(T allTokenNeededData);
+
+        Task<string> GetAccessTokenOnBehalfOf(T allTokenNeededData);
     }
 }

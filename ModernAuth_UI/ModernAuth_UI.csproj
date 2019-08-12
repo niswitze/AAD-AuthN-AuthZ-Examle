@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Handler.Auth\Handler.Auth.csproj" />
-    <ProjectReference Include="..\Handler.API\Handler.API.csproj" />
   </ItemGroup>
 
 

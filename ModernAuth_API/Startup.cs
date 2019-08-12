@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Handler.Auth;
 
 namespace ModernAuth_API
 {
@@ -25,13 +26,19 @@ namespace ModernAuth_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //custom service for authentication and authorization
+            services.AddSingleton<ITokenHandler<IDictionary<string, string>>,
+                                  ADALTokenHandler<IDictionary<string, string>>>();
+
             services.AddAuthentication(sharedOptions =>
             {
                 sharedOptions.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddAzureAdBearer(options => Configuration.Bind("AzureAd", options));
 
+            services.AddHttpClient();
             services.AddMvc();
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,7 +49,7 @@ namespace ModernAuth_API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseAuthentication();
+            app.UseAuthentication();        
             app.UseMvc();
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.AspNetCore.Authentication
 {
@@ -30,8 +31,16 @@ namespace Microsoft.AspNetCore.Authentication
 
             public void Configure(string name, JwtBearerOptions options)
             {
+                //validation for bearer token, added by configuration wizard
                 options.Audience = _azureOptions.ClientId;
                 options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}";
+
+                //not added by configuration wizard
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateLifetime = true,
+                    ValidateIssuer = true,
+                };
             }
 
             public void Configure(JwtBearerOptions options)

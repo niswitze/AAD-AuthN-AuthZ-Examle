@@ -6,11 +6,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Handler.AuthN;
+using Handler.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using ModernAuth_UI.Models;
-using MSGraphHandler_ADAL.Models;
 using Newtonsoft.Json;
 
 namespace ModernAuth_UI.Controllers
@@ -35,16 +34,15 @@ namespace ModernAuth_UI.Controllers
            
             using (var httpClient = _httpClientFactory.CreateClient())
             {
-                string queryString = "?userName=" + this.User.Identity.Name;
                 var dictionary = _configuration.GetSection("AzureAd").GetChildren()
                                                                      .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
                                                                      .ToDictionary(x => x.Key, x => x.Value);
 
-                var accessToken = await _tokenHandler.GetAccessToken(dictionary);
-
+                var accessToken = await _tokenHandler.GetAccessTokenSilently(dictionary);
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                HttpResponseMessage response = await httpClient.GetAsync(_configuration["apiURL"] + queryString);
-                var userBody = JsonConvert.DeserializeObject<User>(response.ToString());
+                var response = await httpClient.GetAsync(_configuration["apiURL"] + this.User.Identity.Name);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var userBody = JsonConvert.DeserializeObject<User>(responseContent);
 
                 return View(userBody);
             }

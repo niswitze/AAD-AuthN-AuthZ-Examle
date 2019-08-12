@@ -1,45 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Handler.Auth;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace ModernAuth_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ValuesController : ControllerBase
     {
-        // GET api/values
-        [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
+        private readonly ITokenHandler<IDictionary<string, string>> _tokenHandler;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public ValuesController(IHttpClientFactory httpClientFactory, 
+                                IConfiguration configuration, 
+                                ITokenHandler<IDictionary<string, string>> tokenHandler,
+                                IHttpContextAccessor httpContextAccessor)
         {
-            return new string[] { "value1", "value2" };
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
+            _tokenHandler = tokenHandler;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        [HttpGet("{username}")]
+        public async Task<ActionResult> Get(string username)
         {
-            return "value";
+            HttpResponseMessage response = null;
+            using (var httpClient = _httpClientFactory.CreateClient())
+            {
+                var dictionary = _configuration.GetSection("AzureAd").GetChildren()
+                                                                   .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
+                                                                   .ToDictionary(x => x.Key, x => x.Value);
+                var urlEndPoint = "/v1.0/users/" + username;
+
+                dictionary["accessToken"] = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+                dictionary["resource"] = _configuration["resource"];
+                dictionary["userName"] = username;
+
+                var accessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(dictionary);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+
+                response = await httpClient.GetAsync(_configuration["resource"] + urlEndPoint);
+            }
+
+            var rawBody = await response.Content.ReadAsStringAsync();
+
+            return new ObjectResult(rawBody);
         }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

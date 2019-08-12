@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace MSGraphHandler_ADAL.Models
+namespace ModernAuth_UI.Models
 {
     public class User
     {
