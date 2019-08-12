@@ -22,7 +22,7 @@ namespace ModernAuth_UI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //custom service for authentication and authorization
+            //custom service for authentication and authorization. Not added by configuration wizard
             services.AddSingleton<ITokenHandler<IDictionary<string, string>>, 
                                   ADALTokenHandler<IDictionary<string, string>>>();
 
@@ -35,6 +35,7 @@ namespace ModernAuth_UI
             })
             .AddAzureAd(options => Configuration.Bind("AzureAd", options))
             .AddCookie();
+
             services.AddHttpClient();
 
             services.AddMvc();

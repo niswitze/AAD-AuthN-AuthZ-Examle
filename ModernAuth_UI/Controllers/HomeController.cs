@@ -39,16 +39,23 @@ namespace ModernAuth_UI.Controllers
 
                 try
                 {
+                    //obtain an access token if it exists in the token cache. 
+                    //if no access token exists in the token cache an error will be thrown
                     accessToken = await _tokenHandler.GetAccessTokenSilently(dictionary);
                 }
                 catch(Exception e)
                 {
+                    //catches error thrown if no token exists in the token cache. Will cause a redirect to sign the user in
+                    //and run through the authN process to ensure an access token is loaded into the token cache
                     return RedirectToAction("SignIn", "Account");
                 }
 
+                //uses access token to call ModernAuth_API
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 var response = await httpClient.GetAsync(_configuration["apiURL"] + this.User.Identity.Name);
                 var responseContent = await response.Content.ReadAsStringAsync();
+
+                //Deserializes user data returned from Graph API, which is called by ModernAuth_API. 
                 var userBody = JsonConvert.DeserializeObject<User>(responseContent);
 
                 return View(userBody);

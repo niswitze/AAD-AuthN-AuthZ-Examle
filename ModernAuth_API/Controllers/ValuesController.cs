@@ -43,12 +43,15 @@ namespace ModernAuth_API.Controllers
             HttpResponseMessage response = null;
             using (var httpClient = _httpClientFactory.CreateClient())
             {
+                //obtain app settings from AzureAd section
                 var dictionary = _configuration.GetSection("AzureAd").GetChildren()
                                                                    .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
                                                                    .ToDictionary(x => x.Key, x => x.Value);
                 var urlEndPoint = "/v1.0/users/" + username;
 
+                //adding accessToken used to call this api to dictionary of token data
                 dictionary["accessToken"] = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+
                 dictionary["resource"] = _configuration["resource"];
                 dictionary["userName"] = username;
 

@@ -26,7 +26,7 @@ namespace ModernAuth_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //custom service for authentication and authorization
+            //custom service for authentication and authorization. Not added by configuration wizard
             services.AddSingleton<ITokenHandler<IDictionary<string, string>>,
                                   ADALTokenHandler<IDictionary<string, string>>>();
 

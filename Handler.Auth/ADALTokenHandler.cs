@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace Handler.Auth
 {
+    /// <summary>
+    /// Custom service for handling authN requests. Uses ADAL
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ADALTokenHandler<T> : ITokenHandler<T>
                                         where T : IDictionary<string,string>
     {

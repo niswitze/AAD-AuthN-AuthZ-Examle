@@ -35,7 +35,7 @@ namespace Microsoft.AspNetCore.Authentication
                 options.Audience = _azureOptions.ClientId;
                 options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}";
 
-                //not added by configuration wizard
+                //not added by configuration wizard. Added by author for extra validation
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateLifetime = true,
