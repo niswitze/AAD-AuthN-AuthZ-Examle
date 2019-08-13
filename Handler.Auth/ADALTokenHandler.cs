@@ -17,7 +17,6 @@ namespace Handler.Auth
             var authContext = new AuthenticationContext($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}");
             var result = await authContext.AcquireTokenSilentAsync(allTokenNeededData["Resource"], allTokenNeededData["ClientId"]);
             return result.AccessToken;
-
         }
 
         public async Task StoreAccessToken(T allTokenNeededData)
@@ -46,7 +45,7 @@ namespace Handler.Auth
             AuthenticationContext authContext = new AuthenticationContext($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}");
 
             var result = await authContext.AcquireTokenAsync(allTokenNeededData["resource"], clientCred, userAssertion);
-
+          
             return result.AccessToken;
         }
     }
