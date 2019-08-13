@@ -2,13 +2,13 @@
 
 ### Version 1.0 - .NET Core with ADAL
 
-##### Steps to run sample:
+#### Steps to run sample:
 
 1. Clone or Fork/Clone this repository
 2. Rename both appSettingsReference.json to appSettings.json
 3. Create two app registrations to for the ModernAuth UI and ModernAuth API
     1. Give the ModernAuth API the following Exposed API scope:
-        (/images/ExposeModernAuthAPI.PNG)
+        ![GitHub Logo](/images/ExposeModernAuthAPI.PNG)
     2. Give the ModernAuth UI the following permissions:
         (/images/ModernAuthUIPermissions.PNG)
     3. Give the ModernAuth API the following permissions:
