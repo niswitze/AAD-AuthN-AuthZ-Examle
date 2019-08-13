@@ -8,7 +8,7 @@
 2. Rename both appSettingsReference.json to appSettings.json
 3. Create two app registrations to for the ModernAuth UI and ModernAuth API
     1. Give the ModernAuth API the following Exposed API scope:
-        ![ExposeModernAuthAPI](/images/ExposeModernAuthAPI.PNG){: style="border: 1px solid black"}
+        <img src="/images/ModernAuthUIPermissions.PNG" alt="ModernAuthUIPermissions Image" border="10" />
 
     2. Give the ModernAuth UI the following permissions:
         ![ModernAuthUIPermissions](/images/ModernAuthUIPermissions.PNG# border)
