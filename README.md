@@ -8,11 +8,11 @@
 2. Rename both appSettingsReference.json to appSettings.json
 3. Create two app registrations to for the ModernAuth UI and ModernAuth API
     1. Give the ModernAuth API the following Exposed API scope:
-        ![GitHub Logo](/images/ExposeModernAuthAPI.PNG)
+        ![ExposeModernAuthAPI](/images/ExposeModernAuthAPI.PNG)
     2. Give the ModernAuth UI the following permissions:
-        (/images/ModernAuthUIPermissions.PNG)
+        ![ModernAuthUIPermissions](/images/ModernAuthUIPermissions.PNG)
     3. Give the ModernAuth API the following permissions:
-        (/images/ModernAuthAPIPermissions.PNG)
+        ![ModernAuthAPIPermissions](/images/ModernAuthAPIPermissions.PNG)
     4. Copy the Application ID of the ModernAuth UI App registration and place it in the knownClientApplications element        within the ModernAuth API's app manifest
-        (/images/KnownClientApplicationsAppManifest.PNG)
+        ![KnownClientApplicationsAppManifest](/images/KnownClientApplicationsAppManifest.PNG)
 4. Update the appSettings.json in both the ModernAuth UI and ModernAuth API to reflect all need settings from their app registrations.
