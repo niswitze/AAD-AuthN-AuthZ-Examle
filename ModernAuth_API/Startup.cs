@@ -36,7 +36,6 @@ namespace ModernAuth_API
             })
             .AddAzureAdBearer(options => Configuration.Bind("AzureAd", options));
 
-            services.AddHttpClient();
             services.AddMvc();
             services.AddHttpContextAccessor();
         }

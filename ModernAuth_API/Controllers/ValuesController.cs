@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Graph;
 using Newtonsoft.Json;
 
 namespace ModernAuth_API.Controllers
@@ -20,17 +21,14 @@ namespace ModernAuth_API.Controllers
     [Authorize]
     public class ValuesController : ControllerBase
     {
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly ITokenHandler<IDictionary<string, string>> _tokenHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ValuesController(IHttpClientFactory httpClientFactory, 
-                                IConfiguration configuration, 
+        public ValuesController(IConfiguration configuration, 
                                 ITokenHandler<IDictionary<string, string>> tokenHandler,
                                 IHttpContextAccessor httpContextAccessor)
         {
-            _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _tokenHandler = tokenHandler;
             _httpContextAccessor = httpContextAccessor;
@@ -40,31 +38,38 @@ namespace ModernAuth_API.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult> Get(string username)
         {
-            HttpResponseMessage response = null;
-            using (var httpClient = _httpClientFactory.CreateClient())
+            var dictionary = _configuration.GetSection("AzureAd").GetChildren()
+                                                               .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
+                                                               .ToDictionary(x => x.Key, x => x.Value);
+
+            //adding accessToken used to call this api to dictionary of token data
+            dictionary["accessToken"] = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+
+            dictionary["resource"] = _configuration["resource"];
+            dictionary["userName"] = username;
+
+            var accessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(dictionary);
+
+            var graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider((requestMessage) => {
+                requestMessage
+                    .Headers
+                    .Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+
+                return Task.FromResult(0);
+            }));
+
+            //https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter documentation on using filter parameter with Graph API
+            List<QueryOption> options = new List<QueryOption>
             {
-                //obtain app settings from AzureAd section
-                var dictionary = _configuration.GetSection("AzureAd").GetChildren()
-                                                                   .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
-                                                                   .ToDictionary(x => x.Key, x => x.Value);
-                var urlEndPoint = "/v1.0/users/" + username;
-
-                //adding accessToken used to call this api to dictionary of token data
-                dictionary["accessToken"] = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
-
-                dictionary["resource"] = _configuration["resource"];
-                dictionary["userName"] = username;
-
-                var accessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(dictionary);
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                 new QueryOption("$filter", $"userPrincipalName eq '{username}'")
+            };
 
 
-                response = await httpClient.GetAsync(_configuration["resource"] + urlEndPoint);
-            }
+            var user = await graphServiceClient.Users
+                                            .Request(options)
+                                            .GetAsync();
 
-            var rawBody = await response.Content.ReadAsStringAsync();
-
-            return new ObjectResult(rawBody);
+            return new ObjectResult(user.FirstOrDefault());
         }
 
     }
