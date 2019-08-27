@@ -46,10 +46,11 @@ namespace ModernAuth_API.Controllers
             dictionary["accessToken"] = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
             dictionary["resource"] = _configuration["resource"];
-            dictionary["userName"] = username;
+            dictionary["userName"] = _httpContextAccessor.HttpContext.User.Identity.Name;
 
             var accessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(dictionary);
 
+            //tis initiates a graph service client using ADAL. Using MSAL is documented here https://docs.microsoft.com/en-us/graph/sdks/create-client?context=graph%2Fapi%2F1.0&view=graph-rest-1.0&tabs=CS
             var graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider((requestMessage) => {
                 requestMessage
                     .Headers
@@ -59,15 +60,16 @@ namespace ModernAuth_API.Controllers
             }));
 
             //https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter documentation on using filter parameter with Graph API
+            //query options allow passing in OData queries to the api request
             List<QueryOption> options = new List<QueryOption>
             {
                  new QueryOption("$filter", $"userPrincipalName eq '{username}'")
             };
 
-
+            //user will be of type array which is why FirstOrDefault is used to obtain the actual user model
             var user = await graphServiceClient.Users
-                                            .Request(options)
-                                            .GetAsync();
+                                                    .Request(options)
+                                                    .GetAsync();
 
             return new ObjectResult(user.FirstOrDefault());
         }

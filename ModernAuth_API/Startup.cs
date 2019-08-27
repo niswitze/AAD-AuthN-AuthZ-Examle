@@ -30,6 +30,7 @@ namespace ModernAuth_API
             services.AddSingleton<ITokenHandler<IDictionary<string, string>>,
                                   ADALTokenHandler<IDictionary<string, string>>>();
 
+
             services.AddAuthentication(sharedOptions =>
             {
                 sharedOptions.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
