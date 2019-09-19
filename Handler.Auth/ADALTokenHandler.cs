@@ -10,10 +10,11 @@ namespace Handler.Auth
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class ADALTokenHandler<T> : ITokenHandler<T>
-                                        where T : IDictionary<string,string>
+                                       where T : IDictionary<string,string>
     {
         public async Task<string> GetAccessTokenSilently(T allTokenNeededData)
         {
+
             var authContext = new AuthenticationContext($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}");
             var result = await authContext.AcquireTokenSilentAsync(allTokenNeededData["Resource"], allTokenNeededData["ClientId"]);
             return result.AccessToken;
@@ -28,7 +29,7 @@ namespace Handler.Auth
             //only used to ensure access and refresh tokens are stored in cache         
             await authContext.AcquireTokenByAuthorizationCodeAsync(
                                                                     allTokenNeededData["Code"],
-                                                                    new Uri(allTokenNeededData["redirectURI"]),
+                                                                    new Uri(allTokenNeededData["RedirectURI"]),
                                                                     credential,
                                                                     allTokenNeededData["Resource"]
                                                                     );

@@ -47,6 +47,7 @@ namespace ModernAuth_API.Controllers
 
             dictionary["resource"] = _configuration["resource"];
             dictionary["userName"] = _httpContextAccessor.HttpContext.User.Identity.Name;
+            dictionary["RedirectURI"] = _configuration["RedirectURI"];
 
             var accessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(dictionary);
 

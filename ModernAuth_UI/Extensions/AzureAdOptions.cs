@@ -17,5 +17,8 @@
 
         //Not added by configuration wizard. Needed to obtain Resource value from appSettings
         public string Resource { get; set; }
+
+        //Not added by configuration wizard. Needed to obtain Resource value from appSettings
+        public string RedirectURI { get; set; }
     }
 }

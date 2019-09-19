@@ -39,7 +39,7 @@ namespace Microsoft.AspNetCore.Authentication
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateLifetime = true,
-                    ValidateIssuer = true,
+                    ValidateIssuer = true
                 };
             }
 
