@@ -1,6 +1,6 @@
 # AuthN/AuthZ with Azure Active Directory
 
-### Version 1.0 - .NET Core with ADAL
+### Version 2.0 - .NET Core with ADAL & MSAL
 
 #### Steps to run sample:
 
