@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,14 +33,18 @@ namespace Microsoft.AspNetCore.Authentication
             public void Configure(string name, JwtBearerOptions options)
             {
                 //validation for bearer token, added by configuration wizard
-                options.Audience = _azureOptions.ClientId;
                 options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}";
 
                 //not added by configuration wizard. Added by author for extra validation
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateLifetime = true,
-                    ValidateIssuer = true
+                    ValidateIssuer = true,
+                    ValidAudiences = new List<string>()
+                    {
+                        "https://M365x640960.onmicrosoft.com/ModernAuth_API",
+                        _azureOptions.ClientId
+                    }
                 };
             }
 

@@ -37,6 +37,8 @@ namespace ModernAuth_UI.Controllers
                                                                      .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
                                                                      .ToDictionary(x => x.Key, x => x.Value);
 
+                dictionary["userName"] = User.Identity.Name;
+
                 try
                 {
                     //obtain an access token if it exists in the token cache. 
@@ -52,7 +54,7 @@ namespace ModernAuth_UI.Controllers
 
                 //uses access token to call ModernAuth_API
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var response = await httpClient.GetAsync(_configuration["apiURL"] + this.User.Identity.Name);
+                var response = await httpClient.GetAsync(_configuration["apiURL"] + dictionary["userName"]);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 //Deserializes user data returned from Graph API, which is called by ModernAuth_API. 

@@ -22,10 +22,15 @@ namespace ModernAuth_UI
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {           
+        {
+
             //check for UseMSAL value will determine if ADAL or MSAL will be used for managing access tokens
             if (Convert.ToBoolean(Configuration["UseMSAL"]))
             {
+                //services for using Memory Cache with MSAL
+                services.AddMemoryCache();
+                services.AddSingleton<IMsalUserTokenCacheProvider, MsalPerUserMemoryTokenCacheProvider>();
+
                 //custom service for authentication and authorization. Not added by configuration wizard
                 services.AddSingleton<ITokenHandler<IDictionary<string, string>>,
                       MSALTokenHandler<IDictionary<string, string>>>();
@@ -45,7 +50,7 @@ namespace ModernAuth_UI
             .AddAzureAd(options => Configuration.Bind("AzureAd", options))
             .AddCookie();
 
-
+            //services added for an HTTP Client for use with the Microsoft Graph API
             services.AddHttpClient();
 
             services.AddMvc();

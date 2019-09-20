@@ -79,6 +79,7 @@ namespace Microsoft.AspNetCore.Authentication
                                                                     .ToDictionary(x => x.Key, x => x.Value);
 
                 dictionary["Code"] = context.TokenEndpointRequest.Code;
+                dictionary["userName"] = context.Principal.Identity.Name;
 
                 //used to exchange the authCode for an access and refresh token and then store those tokens in the token cache.
                 //Current token cache is in memory and will need to be updated to an external store before production worthy
