@@ -51,7 +51,7 @@ namespace ModernAuth_API.Controllers
 
             var accessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(dictionary);
 
-            //tis initiates a graph service client using ADAL. Using MSAL is documented here https://docs.microsoft.com/en-us/graph/sdks/create-client?context=graph%2Fapi%2F1.0&view=graph-rest-1.0&tabs=CS
+            //this initiates a graph service client using ADAL. Using MSAL is documented here https://docs.microsoft.com/en-us/graph/sdks/create-client?context=graph%2Fapi%2F1.0&view=graph-rest-1.0&tabs=CS
             var graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider((requestMessage) => {
                 requestMessage
                     .Headers

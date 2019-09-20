@@ -42,7 +42,7 @@ namespace Microsoft.AspNetCore.Authentication
                     ValidateIssuer = true,
                     ValidAudiences = new List<string>()
                     {
-                        "https://M365x640960.onmicrosoft.com/ModernAuth_API",
+                        _azureOptions.AppIDURL,
                         _azureOptions.ClientId
                     }
                 };

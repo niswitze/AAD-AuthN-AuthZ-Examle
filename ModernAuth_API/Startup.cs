@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Handler.Auth;
+using Handler.Auth.Extensions;
 
 namespace ModernAuth_API
 {
@@ -26,24 +21,18 @@ namespace ModernAuth_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpContextAccessor();
+            
 
             //check for UseMSAL value will determine if ADAL or MSAL will be used for managing access tokens
             if (Convert.ToBoolean(Configuration["UseMSAL"]))
             {
-                //services for using Memory Cache with MSAL
-                services.AddMemoryCache();
-                services.AddSingleton<IMsalUserTokenCacheProvider, MsalPerUserMemoryTokenCacheProvider>();
-
-                //custom service for authentication and authorization. Not added by configuration wizard
-                services.AddSingleton<ITokenHandler<IDictionary<string, string>>,
-                      MSALTokenHandler<IDictionary<string, string>>>();
+                //services for MSAL as token provider
+                services.RegisterMSALServices();
             }
             else
             {
-                //custom service for authentication and authorization. Not added by configuration wizard
-                services.AddSingleton<ITokenHandler<IDictionary<string, string>>,
-                      ADALTokenHandler<IDictionary<string, string>>>();
+                //services for ADAL as token provider
+                services.RegisterADALServices();
             }
 
 
@@ -53,6 +42,7 @@ namespace ModernAuth_API
             })
             .AddAzureAdBearer(options => Configuration.Bind("AzureAd", options));
 
+            services.AddHttpContextAccessor();
             services.AddMvc();
         }
 

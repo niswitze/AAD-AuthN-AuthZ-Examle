@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Handler.Auth;
 using System.Collections.Generic;
 using System;
+using Handler.Auth.Extensions;
 
 namespace ModernAuth_UI
 {
@@ -27,19 +28,13 @@ namespace ModernAuth_UI
             //check for UseMSAL value will determine if ADAL or MSAL will be used for managing access tokens
             if (Convert.ToBoolean(Configuration["UseMSAL"]))
             {
-                //services for using Memory Cache with MSAL
-                services.AddMemoryCache();
-                services.AddSingleton<IMsalUserTokenCacheProvider, MsalPerUserMemoryTokenCacheProvider>();
-
-                //custom service for authentication and authorization. Not added by configuration wizard
-                services.AddSingleton<ITokenHandler<IDictionary<string, string>>,
-                      MSALTokenHandler<IDictionary<string, string>>>();
+                //services for MSAL as token provider
+                services.RegisterMSALServices();
             }
             else
             {
-                //custom service for authentication and authorization. Not added by configuration wizard
-                services.AddSingleton<ITokenHandler<IDictionary<string, string>>,
-                      ADALTokenHandler<IDictionary<string, string>>>();
+                //services for ADAL as token provider
+                services.RegisterADALServices();
             }
 
             services.AddAuthentication(sharedOptions =>
@@ -50,9 +45,8 @@ namespace ModernAuth_UI
             .AddAzureAd(options => Configuration.Bind("AzureAd", options))
             .AddCookie();
 
-            //services added for an HTTP Client for use with the Microsoft Graph API
-            services.AddHttpClient();
 
+            services.AddHttpClient();
             services.AddMvc();
         }
 
