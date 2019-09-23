@@ -35,7 +35,7 @@ namespace Handler.Auth
         {
             var confidentialApp = ConfidentialClientApplicationBuilder.Create(allTokenNeededData["ClientId"])
                                                          .WithRedirectUri(allTokenNeededData["RedirectURI"])
-                                                         .WithAuthority($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}")
+                                                         .WithAuthority($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}/v2.0")
                                                          .WithClientSecret(allTokenNeededData["ClientSecret"])
                                                          .Build();
 
@@ -50,7 +50,7 @@ namespace Handler.Auth
         {
             var confidentialApp = ConfidentialClientApplicationBuilder.Create(allTokenNeededData["ClientId"])
                                                           .WithRedirectUri(allTokenNeededData["RedirectURI"])
-                                                          .WithAuthority($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}")
+                                                          .WithAuthority($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}/v2.0")
                                                           .WithClientSecret(allTokenNeededData["ClientSecret"])
                                                           .Build();
 
@@ -67,7 +67,7 @@ namespace Handler.Auth
         {
             var confidentialApp = ConfidentialClientApplicationBuilder.Create(allTokenNeededData["ClientId"])
                                                           .WithRedirectUri(allTokenNeededData["RedirectURI"])
-                                                          .WithAuthority(new Uri($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}"))
+                                                          .WithAuthority($"{allTokenNeededData["Instance"]}{allTokenNeededData["TenantId"]}/v2.0")
                                                           .WithClientSecret(allTokenNeededData["ClientSecret"])
                                                           .Build();
 

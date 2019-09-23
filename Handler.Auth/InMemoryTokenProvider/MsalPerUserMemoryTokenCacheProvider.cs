@@ -95,7 +95,7 @@ namespace Handler.Auth
                 return;
             }
 
-            byte[] tokenCacheBytes = (byte[])_memoryCache.Get(GetMsalAccountId());
+            byte[] tokenCacheBytes = (byte[])_memoryCache.Get(cacheKey);
             args.TokenCache.DeserializeMsalV3(tokenCacheBytes);
         }
 

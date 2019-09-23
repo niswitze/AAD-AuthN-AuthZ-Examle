@@ -86,15 +86,13 @@ namespace Microsoft.AspNetCore.Authentication
                 //Not added by configuration wizard
                 await _tokenHandler.StoreAccessToken(dictionary);
 
-                //used to obtain an access token from the token cache and the idToken passed in on the signin request
-                //Current token cache is in memory and will need to be updated to an external store before production worthy
-                var accessToken = await _tokenHandler.GetAccessTokenSilently(dictionary);
+                //used to obtain the idToken passed in on the signin request
                 var idToken = context.ProtocolMessage.IdToken;
 
                 //used to tell the handler to skip the code redemption process. Allows for us to handle the exchanging an authCode
                 //for an access token
                 //https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.openidconnect.authorizationcodereceivedcontext.handlecoderedemption?view=aspnetcore-2.2
-                context.HandleCodeRedemption(accessToken, idToken);
+                context.HandleCodeRedemption(null, idToken);
             }
 
             //Used to handle any auth failures that may occur during user signin process. Not added by configuration wizard
