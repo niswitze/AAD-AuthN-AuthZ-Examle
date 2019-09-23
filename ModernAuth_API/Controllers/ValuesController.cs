@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Handler.Auth;
 using Microsoft.AspNetCore.Authentication;
@@ -12,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Graph;
-using Newtonsoft.Json;
 
 namespace ModernAuth_API.Controllers
 {
@@ -38,24 +34,52 @@ namespace ModernAuth_API.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult> Get(string username)
         {
-            var dictionary = _configuration.GetSection("AzureAd").GetChildren()
+            var tokenData = await GetTokenData();
+
+            var graphAccessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(tokenData);
+
+            var user = await GetUserInfo(tokenData["userName"], graphAccessToken);
+
+            return new ObjectResult(user);
+        }
+
+
+        /// <summary>
+        /// Returns data needed to acquire a new token on behalf of the signed in user that targets the Microsoft Graph API
+        /// </summary>
+        /// <returns></returns>
+        private async Task<IDictionary<string, string>> GetTokenData()
+        {
+            var tokenData = _configuration.GetSection("AzureAd").GetChildren()
                                                                .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
                                                                .ToDictionary(x => x.Key, x => x.Value);
 
             //adding accessToken used to call this api to dictionary of token data
-            dictionary["accessToken"] = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+            tokenData["accessToken"] = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
-            dictionary["resource"] = _configuration["resource"];
-            dictionary["userName"] = _httpContextAccessor.HttpContext.User.Identity.Name;
-            dictionary["RedirectURI"] = _configuration["RedirectURI"];
+            tokenData["resource"] = _configuration["resource"];
+            tokenData["userName"] = _httpContextAccessor.HttpContext.User.Identity.Name;
+            tokenData["RedirectURI"] = _configuration["RedirectURI"];
 
-            var accessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(dictionary);
 
-            //this initiates a graph service client using ADAL. Using MSAL is documented here https://docs.microsoft.com/en-us/graph/sdks/create-client?context=graph%2Fapi%2F1.0&view=graph-rest-1.0&tabs=CS
-            var graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider((requestMessage) => {
+            return tokenData;
+        }
+
+        /// <summary>
+        /// Returns user's basic profile from the Microsoft Graph API
+        /// </summary>
+        /// <param name="userName">user to query basic profile for</param>
+        /// <param name="graphAccessToken">access token for calling the Microsoft Graph APi</param>
+        /// <returns></returns>
+        private static async Task<User> GetUserInfo(string userName, string graphAccessToken)
+        {
+            //this initiates a graph service client using a DelegateAuthenticationProvider https://github.com/microsoftgraph/msgraph-sdk-dotnet/blob/dev/docs/overview.md#delegateauthenticationprovider
+            //Using an MSAL based auth provider is documented here https://docs.microsoft.com/en-us/graph/sdks/create-client?context=graph%2Fapi%2F1.0&view=graph-rest-1.0&tabs=CS
+            var graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider((requestMessage) =>
+            {
                 requestMessage
                     .Headers
-                    .Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+                    .Authorization = new AuthenticationHeaderValue("bearer", graphAccessToken);
 
                 return Task.FromResult(0);
             }));
@@ -64,16 +88,15 @@ namespace ModernAuth_API.Controllers
             //query options allow passing in OData queries to the api request
             List<QueryOption> options = new List<QueryOption>
             {
-                 new QueryOption("$filter", $"userPrincipalName eq '{username}'")
+                 new QueryOption("$filter", $"userPrincipalName eq '{ userName }'")
             };
 
-            //user will be of type array which is why FirstOrDefault is used to obtain the actual user model
+            //user will be an array which is why FirstOrDefault is used to obtain the actual user model
             var user = await graphServiceClient.Users
                                                     .Request(options)
                                                     .GetAsync();
 
-            return new ObjectResult(user.FirstOrDefault());
+            return user.FirstOrDefault();
         }
-
     }
 }

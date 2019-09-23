@@ -73,18 +73,12 @@ namespace Microsoft.AspNetCore.Authentication
             //Used to handle when an authCode has been received. Not added by configuration wizard
             private async Task OnAuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
             {
-               
-                var dictionary = _configuration.GetSection("AzureAd").GetChildren()
-                                                                    .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
-                                                                    .ToDictionary(x => x.Key, x => x.Value);
-
-                dictionary["Code"] = context.TokenEndpointRequest.Code;
-                dictionary["userName"] = context.Principal.Identity.Name;
+                var tokenData = GetTokenData(context);
 
                 //used to exchange the authCode for an access and refresh token and then store those tokens in the token cache.
                 //Current token cache is in memory and will need to be updated to an external store before production worthy
                 //Not added by configuration wizard
-                await _tokenHandler.StoreAccessToken(dictionary);
+                await _tokenHandler.StoreAccessToken(tokenData);
 
                 //used to obtain the idToken passed in on the signin request
                 var idToken = context.ProtocolMessage.IdToken;
@@ -100,6 +94,21 @@ namespace Microsoft.AspNetCore.Authentication
             {
                 context.HandleResponse();
                 return Task.FromResult(0);
+            }
+
+            /// <summary>
+            /// Returns data needed to acquire a new token on behalf of the signed in user that targets the Microsoft Graph API
+            /// </summary>
+            /// <returns></returns>
+            private IDictionary<string, string> GetTokenData(AuthorizationCodeReceivedContext context)
+            {
+                var dictionary = _configuration.GetSection("AzureAd").GetChildren()
+                                                                    .Select(item => new KeyValuePair<string, string>(item.Key, item.Value))
+                                                                    .ToDictionary(x => x.Key, x => x.Value);
+
+                dictionary["Code"] = context.TokenEndpointRequest.Code;
+                dictionary["userName"] = context.Principal.Identity.Name;
+                return dictionary;
             }
 
         }

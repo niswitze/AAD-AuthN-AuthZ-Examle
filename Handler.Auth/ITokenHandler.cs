@@ -13,7 +13,6 @@ namespace Handler.Auth
         /// Current token cache is in memory and will need to be updated to an external store before production worthy
         /// </summary>
         /// <param name="allTokenNeededData">All needed parameters to obtain an access token</param>
-        /// <returns></returns>
         Task StoreAccessToken(T allTokenNeededData);
 
         /// <summary>
