@@ -73,6 +73,16 @@ namespace ModernAuth_API.Controllers
         /// <returns></returns>
         private static async Task<User> GetUserInfo(string userName, string graphAccessToken)
         {
+            //IConfidentialClientApplication confidentialClientApplication = ConfidentialClientApplicationBuilder.Create(clientId)
+            //                                                                                                    .WithRedirectUri(redirectUri)
+            //                                                                                                    .WithClientSecret(clientSecret) // or .WithCertificate(certificate)
+            //                                                                                                    .Build();
+
+            //AuthorizationCodeProvider authProvider = new AuthorizationCodeProvider(confidentialClientApplication, scopes);
+            //var graphServiceClient = new GraphServiceClient(authProvider);
+
+
+
             //this initiates a graph service client using a DelegateAuthenticationProvider https://github.com/microsoftgraph/msgraph-sdk-dotnet/blob/dev/docs/overview.md#delegateauthenticationprovider
             //Using an MSAL based auth provider is documented here https://docs.microsoft.com/en-us/graph/sdks/create-client?context=graph%2Fapi%2F1.0&view=graph-rest-1.0&tabs=CS
             var graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider((requestMessage) =>
@@ -89,12 +99,16 @@ namespace ModernAuth_API.Controllers
             List<QueryOption> options = new List<QueryOption>
             {
                  new QueryOption("$filter", $"userPrincipalName eq '{ userName }'")
+                 //new QueryOption("$top", "5")
             };
 
             //user will be an array which is why FirstOrDefault is used to obtain the actual user model
             var user = await graphServiceClient.Users
                                                     .Request(options)
                                                     .GetAsync();
+
+            //example of obtaining delta with users
+            //var deltaUsers = await graphServiceClient.Users.Delta().Request().GetAsync();
 
             return user.FirstOrDefault();
         }
