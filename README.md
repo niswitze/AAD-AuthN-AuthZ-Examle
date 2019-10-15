@@ -1,6 +1,6 @@
 # AuthN/AuthZ with Azure Active Directory
 
-### Version 2.0 - .NET Core with ADAL & MSAL
+### Version 2.1 - .NET Core with ADAL & MSAL
 
 #### Steps to run sample:
 
@@ -18,5 +18,7 @@
 
     4. Copy the Application ID of the ModernAuth UI App registration and place it in the knownClientApplications element        within the ModernAuth API's app manifest
         ![KnownClientApplicationsAppManifest](/images/KnownClientApplicationsAppManifest.PNG)
+        - **NOTE**: If you the V2, MSAL, model is only being used this step can be skipped. Instead, copy the Application ID of the ModernAuth UI App registration and add it as an authorized client application to the ModernAuth API's app registration:
+        ![AuthorizedClientApplication](/images/AuthorizedClientApplication.PNG)
 
 4. Update the appSettings.json in both the ModernAuth UI and ModernAuth API to reflect all need settings from their app registrations.

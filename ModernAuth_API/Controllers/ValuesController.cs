@@ -106,7 +106,7 @@ namespace ModernAuth_API.Controllers
             var user = await graphServiceClient.Users
                                                     .Request(options)
                                                     .GetAsync();
-
+          
             //example of obtaining delta with users
             //var deltaUsers = await graphServiceClient.Users.Delta().Request().GetAsync();
 
