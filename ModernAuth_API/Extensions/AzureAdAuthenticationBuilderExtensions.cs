@@ -24,16 +24,27 @@ namespace Microsoft.AspNetCore.Authentication
         private class ConfigureAzureOptions: IConfigureNamedOptions<JwtBearerOptions>
         {
             private readonly AzureAdOptions _azureOptions;
+            private readonly IConfiguration _configuration;
 
-            public ConfigureAzureOptions(IOptions<AzureAdOptions> azureOptions)
+            public ConfigureAzureOptions(IOptions<AzureAdOptions> azureOptions, IConfiguration configuration)
             {
                 _azureOptions = azureOptions.Value;
+                _configuration = configuration;
             }
 
             public void Configure(string name, JwtBearerOptions options)
             {
-                //validation for bearer token, added by configuration wizard
-                options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}";
+
+                if (Convert.ToBoolean(_configuration["UseMSAL"]))
+                {
+                    //validation for bearer token, added by configuration wizard
+                    options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}" + "/v2.0/";
+                }
+                else
+                {
+                    //validation for bearer token, added by configuration wizard
+                    options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}";
+                }
 
                 //not added by configuration wizard. Added by author for extra validation
                 options.TokenValidationParameters = new TokenValidationParameters

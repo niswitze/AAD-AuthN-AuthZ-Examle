@@ -38,7 +38,7 @@ namespace ModernAuth_API.Controllers
 
             var graphAccessToken = await _tokenHandler.GetAccessTokenOnBehalfOf(tokenData);
 
-            var user = await GetUserInfo(tokenData["userName"], graphAccessToken);
+            var user = await GetUserInfo(username, graphAccessToken);
 
             return new ObjectResult(user);
         }
