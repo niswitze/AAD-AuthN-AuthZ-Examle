@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Handler.Auth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.AspNetCore.Authentication
 {
@@ -48,26 +46,15 @@ namespace Microsoft.AspNetCore.Authentication
                 options.ClientId = _azureOptions.ClientId;
                 //added client secret in order to obtain access token through auth code flow. Not added by configuration wizard
                 options.ClientSecret = _azureOptions.ClientSecret;
+                options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}";
                 options.UseTokenLifetime = true;
                 options.CallbackPath = _azureOptions.CallbackPath;
                 options.RequireHttpsMetadata = false;
 
+                options.Resource = _azureOptions.Resource;
+
                 //changed response type to obtain auth code and id token from signin process. Not added by configuration wizard
                 options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
-
-                if (Convert.ToBoolean(_configuration["UseMSAL"]))
-                {
-                    options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}" + "/v2.0/";
-                    options.TokenValidationParameters = new TokenValidationParameters() { NameClaimType = "preferred_username" };
-
-                }
-                else
-                {
-                    options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}";
-                    options.Resource = _azureOptions.Resource;
-                  
-                }
-               
 
                 //event handlers for handling when an authCode is received and when the authentication fails. Not added by configuration wizard
                 options.Events = new OpenIdConnectEvents
@@ -121,7 +108,6 @@ namespace Microsoft.AspNetCore.Authentication
 
                 dictionary["Code"] = context.TokenEndpointRequest.Code;
                 dictionary["userName"] = context.Principal.Identity.Name;
-     
                 return dictionary;
             }
 
