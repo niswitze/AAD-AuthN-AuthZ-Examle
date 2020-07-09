@@ -18,7 +18,6 @@
 
     4. Copy the Application ID of the ModernAuth UI App registration and place it in the knownClientApplications element        within the ModernAuth API's app manifest
         ![KnownClientApplicationsAppManifest](/images/KnownClientApplicationsAppManifest.PNG)
-        - **NOTE**: If the V2, MSAL, model is only being used this step can be skipped. Instead, copy the Application ID of the ModernAuth UI App registration and add it as an authorized client application to the ModernAuth API's app registration:
-        ![AuthorizedClientApplication](/images/AuthorizedClientApplication.PNG)
+        - **NOTE**: If the V2, MSAL, model is only being used you will need to ensure you are only using the V2 endpoints and the property "accessTokenAcceptedVersion" in all app registration manifests is set to 2
 
 4. Update the appSettings.json in both the ModernAuth UI and ModernAuth API to reflect all need settings from their app registrations.
